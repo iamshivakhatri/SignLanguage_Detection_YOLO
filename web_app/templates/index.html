@@ -3,13 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YOLO Object Detection</title>
+    <title>SignSense - AI Sign Language Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body>
-    <h1>Upload Image for YOLO Detection</h1>
-    <form method="POST" action="/upload" enctype="multipart/form-data">
-        <input type="file" name="file" accept="image/*" required>
-        <input type="submit" value="Upload">
-    </form>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto max-w-2xl bg-white shadow-2xl rounded-2xl p-8 transform transition-all duration-300 hover:scale-105">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6">SignSense</h1>
+            <p class="text-gray-500 mb-8">Detect and Understand Sign Language in Real-Time</p>
+
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <button id="uploadBtn" class="bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Upload Image</span>
+                </button>
+                <button id="webcamBtn" class="bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-colors flex items-center justify-center space-x-2"></button>
+            </div>
+
+            <div id="uploadSection" class="hidden">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                    <input type="file" id="fileInput" class="hidden" accept="image/*">
+                    <label for="fileInput" class="cursor-pointer flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="text-gray-600">Drag and drop or click to upload</p>
+                    </label>
+                </div>
+            </div>
+
+            <div id="webcamSection" class="hidden">
+                <div class="relative rounded-lg overflow-hidden shadow-lg">
+                    <img id="webcamFeed" src="" class="w-full" alt="Webcam Feed">
+                    <div id="detectionResult" class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script>
+        const uploadBtn = document.getElementById('uploadBtn');
+        const webcamBtn = document.getElementById('webcamBtn');
+        const uploadSection = document.getElementById('uploadSection');
+        const webcamSection = document.getElementById('webcamSection');
+        const fileInput = document.getElementById('fileInput');
+        const webcamFeed = document.getElementById('webcamFeed');
+        let isWebcamActive = false;
+
+        function showSection(sectionToShow, sectionToHide) {
+            sectionToShow.classList.remove('hidden');
+            sectionToHide.classList.add('hidden');
+        }
+
+        function updateWebcamButton(state) {
+            webcamBtn.innerHTML = state
+                ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 01-1.022-.547l-4.779-4.781a2 2 0 00-2.828 0l-4.779 4.781a2 2 0 01-1.022.547M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg><span>Stop Webcam</span>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg><span>Start Webcam</span>`;
+        }
+
+        async function fetchRequest(url, options) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error('Request failed');
+                return response.text();
+            } catch (error) {
+                Swal.fire('Error', error.message, 'error');
+            }
+        }
+
+        async function toggleWebcam() {
+            if (isWebcamActive) {
+                await fetchRequest('/stop_webcam');
+                webcamFeed.src = "";
+            } else {
+                await fetchRequest('/start_webcam');
+                webcamFeed.src = "{{ url_for('video_feed') }}";
+            }
+            isWebcamActive = !isWebcamActive;
+            updateWebcamButton(isWebcamActive);
+        }
+
+        webcamBtn.addEventListener('click', () => {
+            showSection(webcamSection, uploadSection);
+            toggleWebcam();
+        });
+
+        uploadBtn.addEventListener('click', () => {
+            showSection(uploadSection, webcamSection);
+            if (isWebcamActive) toggleWebcam();
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/upload', { method: 'POST', body: formData });
+    if (response.ok) {
+        const resultHtml = await response.text(); // Get HTML content of `result.html`
+        document.open(); // Clear the current document
+        document.write(resultHtml); // Write the new content
+        document.close(); // Close the document stream to trigger render
+    } else {
+        Swal.fire('Error', 'Failed to upload image. Please try again.', 'error');
+    }
+});
+
+
+        updateWebcamButton(isWebcamActive);
+    </script>
 </body>
 </html>

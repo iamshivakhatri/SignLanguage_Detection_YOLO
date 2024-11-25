@@ -3,12 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detection Result</title>
+    <title>SignSense - Detection Result</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body>
-    <h1>Detection Result</h1>
-    <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Annotated Image">
-    <br>
-    <a href="/web_app/static">Upload another image</a>
+<body class="bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto max-w-2xl bg-white shadow-lg rounded-xl p-8 transform transition-transform duration-300 hover:scale-105">
+        <div class="text-center">
+            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-500 mb-6">
+                SignSense
+            </h1>
+            <p class="text-gray-500 text-lg mb-8">Sign Language Detection Result</p>
+        </div>
+
+        <div class="result-container space-y-6">
+            <!-- Image Container -->
+            <div class="rounded-lg overflow-hidden shadow-md">
+                <img src="data:image/jpeg;base64,{{ original_image | b64encode }}" 
+                     alt="Detected Sign Image" 
+                     class="w-full max-h-[400px] object-cover">
+            </div>
+
+            <!-- Detected Sign -->
+            <div class="bg-gradient-to-r from-indigo-100 to-purple-100 p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold text-gray-800">
+                    Detected Sign: 
+                    <span class="text-indigo-600 font-bold">{{ sign }}</span>
+                </h2>
+            </div>
+
+            <!-- Back Button -->
+            <div class="text-center">
+                <a href="/" 
+                   class="inline-flex items-center px-6 py-3 text-white bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Detection
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

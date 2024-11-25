@@ -1,0 +1,33 @@
+names:
+- A
+- B
+- C
+- D
+- E
+- F
+- G
+- H
+- I
+- J
+- K
+- L
+- M
+- N
+- O
+- P
+- Q
+- R
+- S
+- T
+- U
+- V
+- W
+- X
+- Y
+- Z
+nc: 26
+test: /Users/shivakhatri/Documents/SignLanguage_Detection_YOLO/model_training/train/dataset/test/images
+train: /Users/shivakhatri/Documents/SignLanguage_Detection_YOLO/model_training/train/dataset/train/images
+val: /Users/shivakhatri/Documents/SignLanguage_Detection_YOLO/model_training/train/dataset/val/images
+
+
