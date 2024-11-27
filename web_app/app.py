@@ -79,40 +79,6 @@ def upload_file():
         return render_template('result.html', original_image=img_bytes, sign=sign)
     
 
-#     global webcam_active
-#     global webcam_thread
-
-#     if webcam_active:
-#         webcam_active = False
-#         webcam_thread.join()
-
-#     if 'file' not in request.files:
-#         return redirect(request.url)
-#     file = request.files['file']
-#     if file.filename == '':
-#         return redirect(request.url)
-#     if file:
-#         img_bytes = file.read()
-#         img = Image.open(io.BytesIO(img_bytes))
-#         img_array = np.array(img)
-
-#         if img_array.ndim == 2:
-#             img_array = cv2.cvtColor(img_array, cv2.COLOR_GRAY2RGB)
-#         elif img_array.shape[2] == 4:
-#             img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2RGB)
-
-#         results = model([img_array], conf=confidence_interval)
-#         try:
-#             sign = results[0].names[int(results[0].boxes.cls[0].int())]
-#         except:
-#             sign = "No Sign Detected!"
-
-#         img_io = io.BytesIO()
-#         img.save(img_io, 'JPEG', quality=70)
-#         img_io.seek(0)
-#         img_bytes = img_io.getvalue()
-
-#         return render_template('result.html', original_image=img_bytes, sign=sign)
 
 def generate_frames():
     global webcam_active
